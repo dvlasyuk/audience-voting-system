@@ -8,11 +8,6 @@ namespace AudienceVotingSystem.DataAccess.Configuration;
 public sealed class ApplicationConfiguration
 {
     /// <summary>
-    /// Конфигурация конкурсов мероприятий.
-    /// </summary>
-    public ICollection<Contest> Contests { get; } = [];
-
-    /// <summary>
     /// Конфигурация зрительских голосований.
     /// </summary>
     public ICollection<Voting> Votings { get; } = [];
@@ -26,9 +21,4 @@ public sealed class ApplicationConfiguration
     /// Конфигурация участников.
     /// </summary>
     public ICollection<Participant> Participants { get; } = [];
-
-    /// <summary>
-    /// Конфигурация экспертов.
-    /// </summary>
-    public ICollection<Expert> Experts { get; } = [];
 }

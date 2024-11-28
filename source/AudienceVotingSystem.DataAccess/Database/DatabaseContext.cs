@@ -21,31 +21,6 @@ public sealed class DatabaseContext : DbContext
     { }
 
     /// <summary>
-    /// Отзывы экспертов на мероприятия в рамках конкурсов мероприятий.
-    /// </summary>
-    public DbSet<ExpertFeedback> ExpertFeedbacks => Set<ExpertFeedback>();
-
-    /// <summary>
-    /// Оценки мероприятий в рамках конкурсов мероприятий, выставленные экспертами.
-    /// </summary>
-    public DbSet<ExpertGrade> ExpertGrades => Set<ExpertGrade>();
-
-    /// <summary>
-    /// Отзывы участников на мероприятия в рамках конкурсов мероприятий.
-    /// </summary>
-    public DbSet<ParticipantFeedback> ParticipantFeedbacks => Set<ParticipantFeedback>();
-
-    /// <summary>
-    /// Оценки мероприятий в рамках конкурсов мероприятий, выставленные участниками.
-    /// </summary>
-    public DbSet<ParticipantGrade> ParticipantGrades => Set<ParticipantGrade>();
-
-    /// <summary>
-    /// Отметки о посещении участниками мероприятий в рамках конкурсов мероприятий.
-    /// </summary>
-    public DbSet<AttendanceMark> AttendanceMarks => Set<AttendanceMark>();
-
-    /// <summary>
     /// Голоса участников в рамках зрительских голосований.
     /// </summary>
     public DbSet<ParticipantVote> ParticipantVotes => Set<ParticipantVote>();
@@ -58,11 +33,6 @@ public sealed class DatabaseContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new ExpertFeedbackConfigurator());
-        modelBuilder.ApplyConfiguration(new ExpertGradeConfigurator());
-        modelBuilder.ApplyConfiguration(new ParticipantFeedbackConfigurator());
-        modelBuilder.ApplyConfiguration(new ParticipantGradeConfigurator());
-        modelBuilder.ApplyConfiguration(new AttendanceMarkConfigurator());
         modelBuilder.ApplyConfiguration(new ParticipantVoteConfigurator());
     }
 }

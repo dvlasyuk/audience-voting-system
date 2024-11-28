@@ -76,14 +76,6 @@ internal sealed class AuthenticationProvider : AuthenticationStateProvider
         {
             role = "Administrator";
         }
-        else if (string.Equals(hashedSecret, _configuration.OrganizerSecretHash, StringComparison.Ordinal))
-        {
-            role = "Organizer";
-        }
-        else if (string.Equals(hashedSecret, _configuration.ExpertSecretHash, StringComparison.Ordinal))
-        {
-            role = "Expert";
-        }
 
         var principal = new ClaimsPrincipal();
         if (role != null)

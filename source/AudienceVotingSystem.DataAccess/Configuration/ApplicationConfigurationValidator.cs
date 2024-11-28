@@ -22,11 +22,9 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         var failureMessages = new List<string>();
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, options.Brigades, options.Participants)));
         failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Brigades)));
         failureMessages.AddRange(options.Brigades.SelectMany(item => ValidateBrigade(item, options.Participants)));
         failureMessages.AddRange(options.Participants.SelectMany(item => ValidateParticipant(item, options.Brigades)));
-        failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
 
         return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
@@ -36,29 +34,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
     private static List<string> ValidateIdentifiersUniqueness(ApplicationConfiguration options)
     {
         var failureMessages = new List<string>();
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор конкурса",
-            values: options.Contests
-                .Select(item => item.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор мероприятия",
-            values: options.Contests
-                .SelectMany(item => item.Events)
-                .Select(item => item.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор критерия оценивания экспертами",
-            values: options.Contests
-                .SelectMany(item => item.ExpertCriterions)
-                .Select(item => item.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор критерия оценивания участниками",
-            values: options.Contests
-                .SelectMany(item => item.ParticipantCriterions)
-                .Select(item => item.Identifier)));
 
         failureMessages.AddRange(ValidateIdentifierUniqueness(
             name: "Идентификатор зрительского голосования",
@@ -80,198 +55,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
             name: "Идентификатор участника",
             values: options.Participants
                 .Select(participant => participant.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор эксперта",
-            values: options.Experts
-                .Select(expert => expert.Identifier)));
-
-        return failureMessages;
-    }
-
-    private static List<string> ValidateContest(
-        Contest contest,
-        ICollection<Brigade> brigades,
-        ICollection<Participant> participants)
-    {
-        var failureMessages = new List<string>();
-
-        if (!IsValidIdentifier(contest.Identifier))
-        {
-            failureMessages.Add("Для одного из конкурсов задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
-        if (string.IsNullOrWhiteSpace(contest.Name))
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано пустое название");
-        }
-        else if (contest.Name.Length > 100)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано название, превышающее 100 символов");
-        }
-
-        if (contest.ExpertCriterions.Count == 0 && contest.ParticipantCriterions.Count == 0)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} не задано ни одного критерия оценивания");
-        }
-        if (contest.ExpertCriterions.Count > 10)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано более 10 критериев оценивания экспертами");
-        }
-        if (contest.ParticipantCriterions.Count > 10)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано более 10 критериев оценивания участниками");
-        }
-
-        failureMessages.AddRange(contest.ExpertCriterions.SelectMany(ValidateGradeCriterion));
-        failureMessages.AddRange(contest.ParticipantCriterions.SelectMany(ValidateGradeCriterion));
-
-        if (contest.Events.Count == 0)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} не задано ни одного мероприятия");
-        }
-        if (contest.Events.Count > 100)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано более 100 мероприятий");
-        }
-
-        failureMessages.AddRange(contest.Events.SelectMany(item => ValidateContestEvent(
-            contestEvent: item,
-            brigades: brigades,
-            participants: participants,
-            registeredGrading: contest.RegisteredGrading,
-            friendlyGrading: contest.FriendlyGrading,
-            attendanceControl: contest.AttendanceControl)));
-
-        return failureMessages;
-    }
-
-    private static List<string> ValidateGradeCriterion(GradeCriterion criterion)
-    {
-        var failureMessages = new List<string>();
-
-        if (!IsValidIdentifier(criterion.Identifier))
-        {
-            failureMessages.Add("Для одного из критериев оценивания задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
-        if (string.IsNullOrWhiteSpace(criterion.Name))
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задано пустое название");
-        }
-        else if (criterion.Name.Length > 100)
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задано название, превышающее 100 символов");
-        }
-
-        if (string.IsNullOrWhiteSpace(criterion.Description))
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задано пустое описание");
-        }
-        else if (criterion.Name.Length > 1000)
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задано описание, превышающее 1000 символов");
-        }
-
-        if (criterion.MinimalGrade < 0)
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задана отрицательная минимальная оценка");
-        }
-        if (criterion.MaximalGrade < 0)
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задана отрицательная максимальная оценка");
-        }
-        if (criterion.MinimalGrade >= criterion.MaximalGrade)
-        {
-            failureMessages.Add($"Для критерия оценивания {criterion.Identifier} задана минимальная оценка, большая или равная максимальной");
-        }
-
-        return failureMessages;
-    }
-
-    private static List<string> ValidateContestEvent(
-        ContestEvent contestEvent,
-        ICollection<Brigade> brigades,
-        ICollection<Participant> participants,
-        bool registeredGrading,
-        bool friendlyGrading,
-        bool attendanceControl)
-    {
-        var failureMessages = new List<string>();
-
-        if (!IsValidIdentifier(contestEvent.Identifier))
-        {
-            failureMessages.Add("Для одного из мероприятий задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
-        if (string.IsNullOrWhiteSpace(contestEvent.Name))
-        {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано пустое название");
-        }
-        else if (contestEvent.Name.Length > 100)
-        {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название, превышающее 100 символов");
-        }
-
-        if (!friendlyGrading)
-        {
-            if (contestEvent.Brigades.Count == 0)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
-            }
-            if (contestEvent.Brigades.Count > 10)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
-            }
-
-            foreach (var brigade in contestEvent.Brigades)
-            {
-                if (!IsValidIdentifier(brigade))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор связанного отряда");
-                }
-                if (!brigades.Any(item => item.Identifier == brigade))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор связанного отряда");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор связанного отряда для мероприятия {contestEvent.Identifier}",
-                values: contestEvent.Brigades));
-        }
-
-        if (registeredGrading || attendanceControl)
-        {
-            if (contestEvent.Participants.Count == 0)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного участника");
-            }
-            if (contestEvent.Participants.Count > 100)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
-            }
-
-            foreach (var participant in contestEvent.Participants)
-            {
-                if (!IsValidIdentifier(participant))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
-                    continue;
-                }
-                if (!participants.Any(item => item.Identifier == participant))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
-                values: contestEvent.Participants));
-        }
 
         return failureMessages;
     }
@@ -431,28 +214,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         if (!brigades.Any(item => item.Identifier == participant.Brigade))
         {
             failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
-        }
-
-        return failureMessages;
-    }
-
-    private static List<string> ValidateExpert(Expert expert)
-    {
-        var failureMessages = new List<string>();
-
-        if (!IsValidIdentifier(expert.Identifier))
-        {
-            failureMessages.Add("Для одного из экспертов задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
-        if (string.IsNullOrWhiteSpace(expert.Name))
-        {
-            failureMessages.Add($"Для эксперта {expert.Identifier} задано пустое имя");
-        }
-        else if (expert.Name.Length > 100)
-        {
-            failureMessages.Add($"Для эксперта {expert.Identifier} задано имя, превышающее 100 символов");
         }
 
         return failureMessages;
