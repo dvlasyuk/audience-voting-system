@@ -10,7 +10,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Configurators;
 /// <summary>
 /// Конфигуратор отметки о посещении участником мероприятия в рамках конкурса мероприятий.
 /// </summary>
-public class AttendanceMarkConfigurator : IEntityTypeConfiguration<AttendanceMark>
+internal sealed class AttendanceMarkConfigurator : IEntityTypeConfiguration<AttendanceMark>
 {
     /// <summary>
     /// Конфигурирует модель сущности базы данных.

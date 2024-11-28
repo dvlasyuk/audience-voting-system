@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация кандидата зрительского голосования.
 /// </summary>
-public class Candidate
+public sealed class Candidate
 {
     /// <summary>
     /// Идентификатор кандидита.

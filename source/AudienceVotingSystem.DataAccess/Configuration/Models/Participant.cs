@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация участника.
 /// </summary>
-public class Participant
+public sealed class Participant
 {
     /// <summary>
     /// Идентификатор участника.

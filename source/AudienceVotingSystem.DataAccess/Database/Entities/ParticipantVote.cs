@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Entities;
 /// <summary>
 /// Голос участника в рамках зрительского голосования.
 /// </summary>
-public class ParticipantVote
+public sealed class ParticipantVote
 {
     /// <summary>
     /// Идентификатор голоса.

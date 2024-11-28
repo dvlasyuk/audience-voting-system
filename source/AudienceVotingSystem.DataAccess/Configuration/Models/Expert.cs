@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация эксперта.
 /// </summary>
-public class Expert
+public sealed class Expert
 {
     /// <summary>
     /// Идентификатор эксперта.

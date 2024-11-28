@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Entities;
 /// <summary>
 /// Отметка о посещении участником мероприятия в рамках конкурса мероприятий.
 /// </summary>
-public class AttendanceMark
+public sealed class AttendanceMark
 {
     /// <summary>
     /// Идентификатор участника, посетившего мероприятие.

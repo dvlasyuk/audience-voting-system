@@ -7,7 +7,7 @@ namespace AudienceVotingSystem.Host.Configuration;
 /// <summary>
 /// Валидатор конфигурационных данные для обеспечения безопасности приложения.
 /// </summary>
-public class SecurityConfigurationValidator : IValidateOptions<SecurityConfiguration>
+internal sealed class SecurityConfigurationValidator : IValidateOptions<SecurityConfiguration>
 {
     /// <summary>
     /// Валидирует заданный экземпляр конфигурационных данных.

@@ -14,7 +14,7 @@ namespace AudienceVotingSystem.Host;
 /// <summary>
 /// Провайдер информации об аутентифицированном пользователе.
 /// </summary>
-public class AuthenticationProvider : AuthenticationStateProvider
+internal sealed class AuthenticationProvider : AuthenticationStateProvider
 {
     private readonly SecurityConfiguration _configuration;
     private readonly ProtectedLocalStorage _localStorage;

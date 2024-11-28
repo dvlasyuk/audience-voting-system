@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация отряда.
 /// </summary>
-public class Brigade
+public sealed class Brigade
 {
     /// <summary>
     /// Идентификатор отряда.

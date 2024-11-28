@@ -9,7 +9,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration;
 /// <summary>
 /// Валидатор конфигурационных данных приложения.
 /// </summary>
-public class ApplicationConfigurationValidator : IValidateOptions<ApplicationConfiguration>
+internal sealed class ApplicationConfigurationValidator : IValidateOptions<ApplicationConfiguration>
 {
     /// <summary>
     /// Валидирует заданный экземпляр конфигурационных данных.

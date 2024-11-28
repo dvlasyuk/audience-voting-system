@@ -10,7 +10,7 @@ namespace AudienceVotingSystem.DataAccess.Database;
 /// <summary>
 /// Контекст для доступа к базе данных.
 /// </summary>
-public class DatabaseContext : DbContext
+public sealed class DatabaseContext : DbContext
 {
     /// <summary>
     /// Создаёт новый экземпляр <see cref="DatabaseContext"/>.

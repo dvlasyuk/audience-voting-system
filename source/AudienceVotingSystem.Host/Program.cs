@@ -13,7 +13,7 @@ namespace AudienceVotingSystem.Host;
 /// <summary>
 /// Основной класс приложения, содержащий точку входа.
 /// </summary>
-public static class Program
+internal static class Program
 {
     /// <summary>
     /// Основной метод приложения, являющийся точкой входа.

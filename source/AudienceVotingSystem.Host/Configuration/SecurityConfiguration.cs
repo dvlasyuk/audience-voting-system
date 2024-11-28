@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.Host.Configuration;
 /// <summary>
 /// Конфигурационные данные для обеспечения безопасности приложения.
 /// </summary>
-public class SecurityConfiguration
+internal sealed class SecurityConfiguration
 {
     /// <summary>
     /// Хэш секретной фразы администратора.

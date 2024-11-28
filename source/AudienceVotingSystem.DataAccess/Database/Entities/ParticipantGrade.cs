@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Entities;
 /// <summary>
 /// Оценка мероприятия в рамках конкурса мероприятий, выставленная участником.
 /// </summary>
-public class ParticipantGrade
+public sealed class ParticipantGrade
 {
     /// <summary>
     /// Идентификатор отзыва, в рамках которого выставлена оценка.

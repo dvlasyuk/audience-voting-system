@@ -5,7 +5,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration;
 /// <summary>
 /// Конфигурационные данные приложения.
 /// </summary>
-public class ApplicationConfiguration
+public sealed class ApplicationConfiguration
 {
     /// <summary>
     /// Конфигурация конкурсов мероприятий.

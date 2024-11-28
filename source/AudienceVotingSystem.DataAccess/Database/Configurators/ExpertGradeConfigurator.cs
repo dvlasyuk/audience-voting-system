@@ -10,7 +10,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Configurators;
 /// <summary>
 /// Конфигуратор оценки мероприятия в рамках конкурса мероприятий, выставленной экспертом.
 /// </summary>
-public class ExpertGradeConfigurator : IEntityTypeConfiguration<ExpertGrade>
+internal sealed class ExpertGradeConfigurator : IEntityTypeConfiguration<ExpertGrade>
 {
     /// <summary>
     /// Конфигурирует модель сущности базы данных.

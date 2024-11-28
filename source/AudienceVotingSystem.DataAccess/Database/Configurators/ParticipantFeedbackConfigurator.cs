@@ -10,7 +10,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Configurators;
 /// <summary>
 /// Конфигуратор отзыва участника на мероприятие в рамках конкурса мероприятий.
 /// </summary>
-public class ParticipantFeedbackConfigurator : IEntityTypeConfiguration<ParticipantFeedback>
+internal sealed class ParticipantFeedbackConfigurator : IEntityTypeConfiguration<ParticipantFeedback>
 {
     /// <summary>
     /// Конфигурирует модель сущности базы данных.

@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация команды участников.
 /// </summary>
-public class Team
+public sealed class Team
 {
     /// <summary>
     /// Идентификатор команды.

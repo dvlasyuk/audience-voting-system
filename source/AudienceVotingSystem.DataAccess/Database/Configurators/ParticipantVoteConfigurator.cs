@@ -10,7 +10,7 @@ namespace AudienceVotingSystem.DataAccess.Database.Configurators;
 /// <summary>
 /// Конфигуратор голоса участника в рамках зрительского голосования.
 /// </summary>
-public class ParticipantVoteConfigurator : IEntityTypeConfiguration<ParticipantVote>
+internal sealed class ParticipantVoteConfigurator : IEntityTypeConfiguration<ParticipantVote>
 {
     /// <summary>
     /// Конфигурирует модель сущности базы данных.

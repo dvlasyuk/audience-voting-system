@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация мероприятия, проводимого в рамках конкурса мероприятий.
 /// </summary>
-public class ContestEvent
+public sealed class ContestEvent
 {
     /// <summary>
     /// Идентификатор мероприятия.

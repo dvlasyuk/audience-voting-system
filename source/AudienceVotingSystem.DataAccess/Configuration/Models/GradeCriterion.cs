@@ -3,7 +3,7 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация критерия оценивания в рамках конкурса мероприятий.
 /// </summary>
-public class GradeCriterion
+public sealed class GradeCriterion
 {
     /// <summary>
     /// Идентификатор критерия.
