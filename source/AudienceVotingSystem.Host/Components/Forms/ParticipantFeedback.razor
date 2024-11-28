@@ -61,10 +61,10 @@
 <MudPaper Class="mt-3 pa-3">
     <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
 
-        <MudAutocomplete T="Team"
-                         @bind-Value="_selectedTeam"
-                         @bind-Value:after="OnSelectedTeamChange"
-                         SearchFunc="@SearchTeam"
+        <MudAutocomplete T="Brigade"
+                         @bind-Value="_selectedBrigade"
+                         @bind-Value:after="OnSelectedBrigadeChange"
+                         SearchFunc="@SearchBrigade"
                          Required="true"
                          ResetValueOnEmptyText="true"
                          Label="Выбери свою команду"
@@ -77,7 +77,7 @@
         <MudAutocomplete T="Participant"
                          @ref="_participantSelector"
                          @bind-Value="_selectedParticipant"
-                         Disabled="@(_selectedTeam == null)"
+                         Disabled="@(_selectedBrigade is null)"
                          SearchFunc="@SearchParticipant"
                          Required="true"
                          ResetValueOnEmptyText="true"
@@ -130,7 +130,7 @@
     private bool _isFormDisabled = false;
     private bool _isFormValid = false;
 
-    private Team? _selectedTeam = null;
+    private Brigade? _selectedBrigade = null;
     private Participant? _selectedParticipant = null;
     private Dictionary<string, int> _selectedGrades = new Dictionary<string, int>();
     private string? _enteredNote = null;
@@ -165,7 +165,6 @@
             IsGraded: contest.ParticipantCriterions.Count > 0,
             RegisteredGrading: contest.RegisteredGrading,
             FriendlyGrading: contest.FriendlyGrading,
-            BannedTeams: contest.BannedTeams.ToList(),
             Brigades: contestEvent.Brigades.ToList(),
             Participants: contestEvent.Participants.ToList(),
             Criterions: contest.ParticipantCriterions
@@ -215,17 +214,16 @@
         NavigationManager.NavigateTo($"/forms/participant-feedback/{EventId}", true);
     }
 
-    private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)
+    private Task<IEnumerable<Brigade>> SearchBrigade(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
-            return Task.FromResult(Enumerable.Empty<Team>());
+            return Task.FromResult(Enumerable.Empty<Brigade>());
         }
 
-        return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
-            .Where(team => !_eventDetails!.BannedTeams.Contains(team.Identifier))
-            .Where(team => Configuration.Value.Participants
-                .Where(participant => participant.Team == team.Identifier)
+        return Task.FromResult<IEnumerable<Brigade>>(Configuration.Value.Brigades
+            .Where(brigade => Configuration.Value.Participants
+                .Where(participant => participant.Brigade == brigade.Identifier)
                 .Where(participant =>
                     !_eventDetails!.RegisteredGrading ||
                     _eventDetails!.Participants.Contains(participant.Identifier))
@@ -233,10 +231,10 @@
                     _eventDetails!.FriendlyGrading ||
                     !_eventDetails!.Brigades.Contains(participant.Brigade))
                 .Any())
-            .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(team => new Team(
-                Identifier: team.Identifier,
-                Name: team.Name))
+            .Where(brigade => brigade.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(brigade => new Brigade(
+                Identifier: brigade.Identifier,
+                Name: brigade.Name))
             .ToList());
     }
 
@@ -246,15 +244,15 @@
         {
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
-        if (_selectedTeam == null)
+        if (_selectedBrigade == null)
         {
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
 
-        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
-            .Where(team => team.Identifier == _selectedTeam.Identifier)
-            .SelectMany(team => Configuration.Value.Participants
-                .Where(participant => participant.Team == team.Identifier))
+        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Brigades
+            .Where(brigade => brigade.Identifier == _selectedBrigade.Identifier)
+            .SelectMany(brigade => Configuration.Value.Participants
+                .Where(participant => participant.Brigade == brigade.Identifier))
             .Where(participant =>
                 !_eventDetails!.RegisteredGrading ||
                 _eventDetails!.Participants.Contains(participant.Identifier))
@@ -268,7 +266,7 @@
             .ToList());
     }
 
-    private async Task OnSelectedTeamChange()
+    private async Task OnSelectedBrigadeChange()
     {
         if (_participantSelector is null)
         {
@@ -291,12 +289,11 @@
         bool IsGraded,
         bool RegisteredGrading,
         bool FriendlyGrading,
-        IReadOnlyCollection<string> BannedTeams,
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Participants,
         IReadOnlyList<GradeCriterion> Criterions);
 
-    private record Team(string Identifier, string Name)
+    private record Brigade(string Identifier, string Name)
     {
         public override string ToString() => Name;
     }

@@ -22,11 +22,10 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         var failureMessages = new List<string>();
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, options.Teams, options.Brigades, options.Participants)));
-        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Brigades, options.Teams)));
-        failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, options.Participants)));
+        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, options.Brigades, options.Participants)));
+        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Brigades)));
         failureMessages.AddRange(options.Brigades.SelectMany(item => ValidateBrigade(item, options.Participants)));
-        failureMessages.AddRange(options.Participants.SelectMany(item => ValidateParticipant(item, options.Brigades, options.Teams)));
+        failureMessages.AddRange(options.Participants.SelectMany(item => ValidateParticipant(item, options.Brigades)));
         failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
 
         return failureMessages.Count > 0
@@ -73,11 +72,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
                 .Select(item => item.Identifier)));
 
         failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор команды",
-            values: options.Teams
-                .Select(team => team.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
             name: "Идентификатор отряда",
             values: options.Brigades
                 .Select(team => team.Identifier)));
@@ -97,7 +91,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
 
     private static List<string> ValidateContest(
         Contest contest,
-        ICollection<Team> teams,
         ICollection<Brigade> brigades,
         ICollection<Participant> participants)
     {
@@ -117,28 +110,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         {
             failureMessages.Add($"Для конкурса {contest.Identifier} задано название, превышающее 100 символов");
         }
-
-        if (contest.BannedTeams.Count > 100)
-        {
-            failureMessages.Add($"Для конкурса {contest.Identifier} задано более 100 исключённых команд");
-        }
-
-        foreach (var team in contest.BannedTeams)
-        {
-            if (!IsValidIdentifier(team))
-            {
-                failureMessages.Add($"Для конкурса {contest.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
-                continue;
-            }
-            if (!teams.Any(item => item.Identifier == team))
-            {
-                failureMessages.Add($"Для конкурса {contest.Identifier} задан несуществующий идентификатор исключённой команды");
-            }
-        }
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: $"Идентификатор исключённой команды для конкурса {contest.Identifier}",
-            values: contest.BannedTeams));
 
         if (contest.ExpertCriterions.Count == 0 && contest.ParticipantCriterions.Count == 0)
         {
@@ -305,10 +276,7 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         return failureMessages;
     }
 
-    private static List<string> ValidateVoting(
-        Voting voting,
-        ICollection<Brigade> brigades,
-        ICollection<Team> teams)
+    private static List<string> ValidateVoting(Voting voting, ICollection<Brigade> brigades)
     {
         var failureMessages = new List<string>();
 
@@ -335,28 +303,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         {
             failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству кандидатов");
         }
-
-        if (voting.BannedTeams.Count > 100)
-        {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 исключённых команд");
-        }
-
-        foreach (var team in voting.BannedTeams)
-        {
-            if (!IsValidIdentifier(team))
-            {
-                failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
-                continue;
-            }
-            if (!teams.Any(item => item.Identifier == team))
-            {
-                failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан несуществующий идентификатор исключённой команды");
-            }
-        }
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: $"Идентификатор исключённой команды для зрительского голосования {voting.Identifier}",
-            values: voting.BannedTeams));
 
         if (voting.Candidates.Count == 0)
         {
@@ -428,41 +374,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         return failureMessages;
     }
 
-    private static List<string> ValidateTeam(Team team, ICollection<Participant> participants)
-    {
-        var failureMessages = new List<string>();
-
-        if (!IsValidIdentifier(team.Identifier))
-        {
-            failureMessages.Add("Для одной из команд задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
-        if (string.IsNullOrWhiteSpace(team.Name))
-        {
-            failureMessages.Add($"Для команды {team.Identifier} задано пустое название");
-        }
-        else if (team.Name.Length > 100)
-        {
-            failureMessages.Add($"Для команды {team.Identifier} задано название, превышающее 100 символов");
-        }
-
-        var members = participants
-            .Where(participant => participant.Team == team.Identifier)
-            .ToList();
-
-        if (members.Count == 0)
-        {
-            failureMessages.Add($"Для команды {team.Identifier} не задано ни одного участника");
-        }
-        if (members.Count > 1000)
-        {
-            failureMessages.Add($"Для команды {team.Identifier} задано более 100 участников");
-        }
-
-        return failureMessages;
-    }
-
     private static List<string> ValidateBrigade(Brigade brigade, ICollection<Participant> participants)
     {
         var failureMessages = new List<string>();
@@ -494,10 +405,7 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         return failureMessages;
     }
 
-    private static List<string> ValidateParticipant(
-        Participant participant,
-        ICollection<Brigade> brigades,
-        ICollection<Team> teams)
+    private static List<string> ValidateParticipant(Participant participant, ICollection<Brigade> brigades)
     {
         var failureMessages = new List<string>();
 
@@ -523,15 +431,6 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         if (!brigades.Any(item => item.Identifier == participant.Brigade))
         {
             failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
-        }
-
-        if (!IsValidIdentifier(participant.Team))
-        {
-            failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор команды");
-        }
-        if (!teams.Any(item => item.Identifier == participant.Team))
-        {
-            failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор команды");
         }
 
         return failureMessages;

@@ -18,11 +18,6 @@ public sealed class ApplicationConfiguration
     public ICollection<Voting> Votings { get; } = [];
 
     /// <summary>
-    /// Конфигурация команд участников.
-    /// </summary>
-    public ICollection<Team> Teams { get; } = [];
-
-    /// <summary>
     /// Конфигурация отрядов.
     /// </summary>
     public ICollection<Brigade> Brigades { get; } = [];

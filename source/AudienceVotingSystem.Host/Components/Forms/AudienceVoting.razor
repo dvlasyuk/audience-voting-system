@@ -47,14 +47,14 @@
 
 <MudPaper Class="mt-3 pa-3">
     <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
-        <MudAutocomplete T="Team"
-                         @bind-Value="_selectedTeam"
-                         @bind-Value:after="OnSelectedTeamChange"
-                         SearchFunc="@SearchTeam"
+        <MudAutocomplete T="Brigade"
+                         @bind-Value="_selectedBrigade"
+                         @bind-Value:after="OnSelectedBrigadeChange"
+                         SearchFunc="@SearchBrigade"
                          Required="true"
                          ResetValueOnEmptyText="true"
-                         Label="Выбери свою команду"
-                         RequiredError="Выбор команды обязателен"
+                         Label="Выбери свой отряд"
+                         RequiredError="Выбор отряда обязателен"
                          Variant="Variant.Outlined"
                          Adornment="Adornment.End"
                          AdornmentIcon="@Icons.Material.Filled.Search"
@@ -64,7 +64,7 @@
                          @ref="_participantSelector"
                          @bind-Value="_selectedParticipant"
                          @bind-Value:after="OnSelectedParticipantChange"
-                         Disabled="@(_selectedTeam == null)"
+                         Disabled="@(_selectedBrigade is null)"
                          SearchFunc="@SearchParticipant"
                          Required="true"
                          ResetValueOnEmptyText="true"
@@ -125,7 +125,7 @@
     private bool _isFormDisabled = false;
     private bool _isFormValid = false;
 
-    private Team? _selectedTeam = null;
+    private Brigade? _selectedBrigade = null;
     private Participant? _selectedParticipant = null;
     private Candidate?[] _selectedCandidates = Array.Empty<Candidate?>();
     private string? _enteredNote = null;
@@ -156,7 +156,6 @@
             Name: voting.Name,
             FriendlyVoting: voting.FriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
-            BannedTeams: voting.BannedTeams.ToList(),
             Candidates: voting.Candidates
                 .Select(candidate => new Candidate(
                     Identifer: candidate.Identifier,
@@ -188,19 +187,18 @@
         NavigationManager.NavigateTo($"/forms/audience-voting/{VotingId}", true);
     }
 
-    private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)
+    private Task<IEnumerable<Brigade>> SearchBrigade(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
-            return Task.FromResult(Enumerable.Empty<Team>());
+            return Task.FromResult(Enumerable.Empty<Brigade>());
         }
 
-        return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
-            .Where(team => !_votingDetails!.BannedTeams.Contains(team.Identifier))
-            .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(team => new Team(
-                Identifier: team.Identifier,
-                Name: team.Name))
+        return Task.FromResult<IEnumerable<Brigade>>(Configuration.Value.Brigades
+            .Where(brigade => brigade.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(brigade => new Brigade(
+                Identifier: brigade.Identifier,
+                Name: brigade.Name))
             .ToList());
     }
 
@@ -210,15 +208,15 @@
         {
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
-        if (_selectedTeam == null)
+        if (_selectedBrigade == null)
         {
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
 
-        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
-            .Where(team => team.Identifier == _selectedTeam.Identifier)
-            .SelectMany(team => Configuration.Value.Participants
-                .Where(participant => participant.Team == team.Identifier))
+        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Brigades
+            .Where(brigade => brigade.Identifier == _selectedBrigade.Identifier)
+            .SelectMany(brigade => Configuration.Value.Participants
+                .Where(participant => participant.Brigade == brigade.Identifier))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new Participant(
                 Identifier: participant.Identifier,
@@ -245,7 +243,7 @@
         return null;
     }
 
-    private async Task OnSelectedTeamChange()
+    private async Task OnSelectedBrigadeChange()
     {
         if (_participantSelector is null)
         {
@@ -293,10 +291,9 @@
         string Name,
         bool FriendlyVoting,
         int VotesQuantity,
-        IReadOnlyCollection<string> BannedTeams,
         IReadOnlyCollection<Candidate> Candidates);
 
-    private record Team(string Identifier, string Name)
+    private record Brigade(string Identifier, string Name)
     {
         public override string ToString() => Name;
     }
