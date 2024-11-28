@@ -183,7 +183,8 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         }
 
         var members = participants
-            .Where(participant => participant.Brigade == brigade.Identifier)
+            .Where(participant => participant.Brigades
+                .Contains(brigade.Identifier))
             .ToList();
 
         if (members.Count > 100)
@@ -213,14 +214,30 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
             failureMessages.Add($"Для участника {participant.Identifier} задано имя, превышающее 100 символов");
         }
 
-        if (!IsValidIdentifier(participant.Brigade))
+        if (participant.Brigades.Count == 0)
         {
-            failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор отряда");
+            failureMessages.Add($"Для участника {participant.Identifier} не задано ни одного отряда");
         }
-        if (!brigades.Any(item => item.Identifier == participant.Brigade))
+        if (participant.Brigades.Count > 10)
         {
-            failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
+            failureMessages.Add($"Для участника {participant.Identifier} задано более 10 отрядов");
         }
+
+        foreach (var brigade in participant.Brigades)
+        {
+            if (!IsValidIdentifier(brigade))
+            {
+                failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор отряда");
+            }
+            if (!brigades.Any(item => item.Identifier == brigade))
+            {
+                failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
+            }
+        }
+
+        failureMessages.AddRange(ValidateIdentifierUniqueness(
+            name: $"Идентификатор отряда для участника {participant.Identifier}",
+            values: participant.Brigades));
 
         return failureMessages;
     }

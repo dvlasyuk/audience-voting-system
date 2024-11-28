@@ -196,12 +196,12 @@
         return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Brigades
             .Where(brigade => brigade.Identifier == _selectedBrigade.Identifier)
             .SelectMany(brigade => Configuration.Value.Participants
-                .Where(participant => participant.Brigade == brigade.Identifier))
+                .Where(participant => participant.Brigades.Contains(brigade.Identifier)))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new Participant(
                 Identifier: participant.Identifier,
                 Name: participant.Name,
-                Brigade: participant.Brigade))
+                Brigades: participant.Brigades.ToList()))
             .ToList());
     }
 
@@ -211,7 +211,7 @@
         {
             return null;
         }
-        if (!_votingDetails!.FriendlyVoting && value.Brigades.Contains(_selectedParticipant!.Brigade))
+        if (!_votingDetails!.FriendlyVoting && value.Brigades.Intersect(_selectedParticipant!.Brigades).Any())
         {
             return "Нельзя голосовать за кандидата, связанного с твоим отрядом";
         }
@@ -281,7 +281,7 @@
     private record Participant(
         string Identifier,
         string Name,
-        string Brigade)
+        IReadOnlyCollection<string> Brigades)
     {
         public override string ToString() => Name;
     }
