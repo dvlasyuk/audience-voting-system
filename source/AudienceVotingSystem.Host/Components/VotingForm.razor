@@ -1,4 +1,4 @@
-@page "/forms/audience-voting"
+@page "/voting-form"
 @layout BaseLayout
 
 @using AudienceVotingSystem.Host.Components.Shared
@@ -50,7 +50,7 @@
                          Variant="Variant.Outlined"
                          Adornment="Adornment.End"
                          AdornmentIcon="@Icons.Material.Filled.Search"
-                         Class="my-3"/>
+                         Class="my-3" />
 
         <MudAutocomplete T="Participant"
                          @ref="_participantSelector"
@@ -107,7 +107,7 @@
                    StartIcon="@Icons.Material.Filled.Send"
                    Class="mt-3">
             Проголосовать
-        </MudButton>
+        </MudButton>>
     </MudForm>
 </MudPaper>
 
@@ -164,7 +164,7 @@
         await DatabaseContext.SaveChangesAsync();
         await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
 
-        NavigationManager.NavigateTo($"/forms/audience-voting", true);
+        NavigationManager.NavigateTo($"/voting-form", true);
     }
 
     private Task<IEnumerable<Brigade>> SearchBrigade(string value, CancellationToken token)

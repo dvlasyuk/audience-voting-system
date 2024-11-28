@@ -1,4 +1,4 @@
-@page "/candidates/{candidateId}/votes"
+@page "/votes/{candidateId}"
 
 @using AudienceVotingSystem.DataAccess.Configuration;
 @using AudienceVotingSystem.DataAccess.Database;
@@ -30,7 +30,7 @@
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
+                <MudText Color="Color.Primary" Class="ml-3">Кандидат <strong>@_votingCandidate.CandidateName</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>

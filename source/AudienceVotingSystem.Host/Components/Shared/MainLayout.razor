@@ -12,36 +12,27 @@
     <Authorized>
 
         <MudThemeProvider IsDarkMode="true" />
+        <MudPopoverProvider />
 
         <MudLayout>
 
             <MudAppBar>
                 <MudIconButton aria-label="Главное меню"
-                    Icon="@Icons.Material.Filled.Menu"
-                    Variant="Variant.Outlined"
-                    Color="Color.Primary"
-                    Edge="Edge.Start"
-                    OnClick="ToogleDrawer" />
+                               Icon="@Icons.Material.Filled.Home"
+                               Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               Edge="Edge.Start"
+                               Href="/" />
 
                 <MudImage Src="favicon-32.png" Class="ml-5" />
-                <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
+                <MudText Typo="Typo.h6" Class="ml-2">Система зрительского голосования СПбСО</MudText>
 
                 <MudSpacer />
                 <MudIconButton aria-label="Выйти из системы"
-                    Icon="@Icons.Material.Filled.Logout"
-                    Variant="Variant.Outlined"
-                    OnClick="OnSignOutFromSystem" />
+                               Icon="@Icons.Material.Filled.Logout"
+                               Variant="Variant.Outlined"
+                               OnClick="OnSignOutFromSystem" />
             </MudAppBar>
-
-            <MudDrawer ClipMode="DrawerClipMode.Docked" Width="300px" @bind-Open="@_isDrawerOpen">
-                <MudDrawerHeader>
-                    <MudText Typo="Typo.subtitle1">Главное меню</MudText>
-                </MudDrawerHeader>
-                <MudNavMenu Bordered="true">
-                    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Главная страница</MudNavLink>
-                    <MudNavLink Href="/voting" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительское голосование</MudNavLink>
-                </MudNavMenu>
-            </MudDrawer>
 
             <MudMainContent>
                 <MudContainer Fixed="true" Class="pt-3">
@@ -63,9 +54,6 @@
 
 @code {
 
-    bool _isDrawerOpen = false;
-
-    private void ToogleDrawer() => _isDrawerOpen = !_isDrawerOpen;
     private async Task OnSignOutFromSystem()
     {
         await AuthenticationProvider.SignOut();
