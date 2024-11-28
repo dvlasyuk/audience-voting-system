@@ -8,17 +8,21 @@ namespace AudienceVotingSystem.DataAccess.Configuration;
 public sealed class ApplicationConfiguration
 {
     /// <summary>
-    /// Конфигурация зрительских голосований.
+    /// Конфигурация зрительского голосования.
     /// </summary>
-    public ICollection<Voting> Votings { get; } = [];
+    public Voting Voting { get; } = new();
 
     /// <summary>
     /// Конфигурация отрядов.
     /// </summary>
+    /// <remarks>Количество сконфигурированных отрядов не может быть нулевым и не должно превышать
+    /// 100 отрядов.</remarks>
     public ICollection<Brigade> Brigades { get; } = [];
 
     /// <summary>
     /// Конфигурация участников.
     /// </summary>
+    /// <remarks>Количество сконфигурированных участников не может быть нулевым и не должно превышать
+    /// 10000 участников.</remarks>
     public ICollection<Participant> Participants { get; } = [];
 }

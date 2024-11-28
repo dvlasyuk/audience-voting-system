@@ -22,9 +22,27 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         var failureMessages = new List<string>();
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Brigades)));
+        failureMessages.AddRange(ValidateVoting(options.Voting, options.Brigades));
         failureMessages.AddRange(options.Brigades.SelectMany(item => ValidateBrigade(item, options.Participants)));
         failureMessages.AddRange(options.Participants.SelectMany(item => ValidateParticipant(item, options.Brigades)));
+
+        if (options.Brigades.Count == 0)
+        {
+            failureMessages.Add($"Не задано ни одного отряда");
+        }
+        if (options.Brigades.Count > 100)
+        {
+            failureMessages.Add($"Задано более 100 отрядов");
+        }
+
+        if (options.Participants.Count == 0)
+        {
+            failureMessages.Add($"Не задано ни одного участника");
+        }
+        if (options.Participants.Count > 10000)
+        {
+            failureMessages.Add($"Задано более 10000 участников");
+        }
 
         return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
@@ -36,14 +54,8 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
         var failureMessages = new List<string>();
 
         failureMessages.AddRange(ValidateIdentifierUniqueness(
-            name: "Идентификатор зрительского голосования",
-            values: options.Votings
-                .Select(item => item.Identifier)));
-
-        failureMessages.AddRange(ValidateIdentifierUniqueness(
             name: "Идентификатор кандидата зрительского голосования",
-            values: options.Votings
-                .SelectMany(item => item.Candidates)
+            values: options.Voting.Candidates
                 .Select(item => item.Identifier)));
 
         failureMessages.AddRange(ValidateIdentifierUniqueness(
@@ -63,37 +75,31 @@ internal sealed class ApplicationConfigurationValidator : IValidateOptions<Appli
     {
         var failureMessages = new List<string>();
 
-        if (!IsValidIdentifier(voting.Identifier))
-        {
-            failureMessages.Add("Для одного из зрительских голосований задан пустой или слишком длинный идентификатор");
-            return failureMessages;
-        }
-
         if (string.IsNullOrWhiteSpace(voting.Name))
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано пустое название");
+            failureMessages.Add($"Для зрительского голосования задано пустое название");
         }
         else if (voting.Name.Length > 100)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано название, превышающее 100 символов");
+            failureMessages.Add($"Для зрительского голосования задано название, превышающее 100 символов");
         }
 
         if (voting.VotesQuantity < 0)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано отрицательное количество голосов");
+            failureMessages.Add($"Для зрительского голосования задано отрицательное количество голосов");
         }
         if (voting.VotesQuantity >= voting.Candidates.Count)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству кандидатов");
+            failureMessages.Add($"Для зрительского голосования задано количество голосов, большее или равное количеству кандидатов");
         }
 
         if (voting.Candidates.Count == 0)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} не задано ни одного кандидата");
+            failureMessages.Add($"Для зрительского голосования не задано ни одного кандидата");
         }
         if (voting.Candidates.Count > 100)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 кандидатов");
+            failureMessages.Add($"Для зрительского голосования задано более 100 кандидатов");
         }
 
         failureMessages.AddRange(voting.Candidates.SelectMany(item => ValidateCandidate(

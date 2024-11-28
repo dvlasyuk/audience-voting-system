@@ -1,4 +1,4 @@
-@page "/votings/{votingId}"
+@page "/voting"
 
 @using AudienceVotingSystem.DataAccess.Configuration
 @using AudienceVotingSystem.DataAccess.Database
@@ -10,16 +10,8 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-@if (_audienceVoting == null)
+@if (_audienceVoting is null)
 {
-    <PageTitle>Неизвестное зрительское голосование</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
-        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
     return;
 }
 
@@ -39,31 +31,34 @@
             <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
             <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
             <MudDivider Class="mt-3" />
-            <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
-                        Variant="Variant.Outlined"
-                        Color="Color.Secondary"
-                        StartIcon="@Icons.Material.Filled.QrCode"
-                        Class="mt-3">
-                Форма голосования
+            <MudButton
+                Href="@($"/forms/audience-voting")"
+                Variant="Variant.Outlined"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Material.Filled.QrCode"
+                Class="mt-3">
+                    Форма голосования
             </MudButton>
         </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>
 
-<MudTable Items="@_votingCandidates"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
+<MudTable
+    Items="@_votingCandidates"
+    Filter="FilterRecords"
+    Breakpoint="Breakpoint.None"
+    Hover="true">
 
     <ToolBarContent>
         <MudText Typo="Typo.h6">Кандидаты голосования</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
+        <MudTextField
+            @bind-Value="_searchFilter"
+            MaxLength="50"
+            Clearable="true"
+            Placeholder="Поиск"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" />
     </ToolBarContent>
 
     <HeaderContent>
@@ -86,11 +81,12 @@
         </MudTd>
         <MudTd>@context.VotesQuantity</MudTd>
         <MudTd>
-            <MudButton Href="@context.VotesLink"
-                       Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Info">
-                Список голосов
+            <MudButton
+                Href="@context.VotesLink"
+                Variant="Variant.Outlined"
+                Color="Color.Primary"
+                StartIcon="@Icons.Material.Filled.Info">
+                    Список голосов
             </MudButton>
         </MudTd>
     </RowTemplate>
@@ -102,21 +98,9 @@
     private IEnumerable<VotingCandidate> _votingCandidates = new List<VotingCandidate>();
     private string? _searchFilter;
 
-    /// <summary>
-    /// Идентификатор зрительского голосования.
-    /// </summary>
-    [Parameter]
-    public string? VotingId { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
-        var voting = Configuration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
-        if (voting == null)
-        {
-            return;
-        }
-
-        var candidateIds = voting.Candidates
+        var candidateIds = Configuration.Value.Voting.Candidates
             .Select(item => item.Identifier)
             .ToList();
 
@@ -125,14 +109,14 @@
             .ToListAsync();
 
         _audienceVoting = new AudienceVoting(
-            Name: voting.Name,
-            FriendlyVoting: voting.FriendlyVoting,
-            VotesQuantity: voting.VotesQuantity,
-            CandidatesQuantity: voting.Candidates.Count,
+            Name: Configuration.Value.Voting.Name,
+            FriendlyVoting: Configuration.Value.Voting.FriendlyVoting,
+            VotesQuantity: Configuration.Value.Voting.VotesQuantity,
+            CandidatesQuantity: Configuration.Value.Voting.Candidates.Count,
             TotalVotesQuantity: savedVotes.Count);
 
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        _votingCandidates = voting.Candidates
+        _votingCandidates = Configuration.Value.Voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new VotingCandidate(
                 Number: index + 1,

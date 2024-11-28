@@ -34,7 +34,6 @@
             </div>
         </TitleContent>
         <ChildContent>
-            <MudText>Название зрительского голосования: <strong>@_votingCandidate.VotingName</strong></MudText>
             <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _votingCandidate.Brigades))</strong></MudText>
             <MudText>Число голосов, отданных зрителями: <strong>@_votingCandidate.VotesQuantity</strong></MudText>
         </ChildContent>
@@ -92,10 +91,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var candidate = Configuration.Value.Votings
-            .SelectMany(item => item.Candidates)
-            .FirstOrDefault(item => item.Identifier == CandidateId);
-
+        var candidate = Configuration.Value.Voting.Candidates.FirstOrDefault(item => item.Identifier == CandidateId);
         if (candidate == null)
         {
             return;
@@ -105,12 +101,9 @@
             .Where(item => item.CandidateId == CandidateId)
             .ToListAsync();
 
-        var voting = Configuration.Value.Votings.First(item => item.Candidates.Contains(candidate));
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-
         _votingCandidate = new VotingCandidate(
             CandidateName: candidate.Name,
-            VotingName: voting.Name,
             Brigades: candidate.Brigades
                 .Select(identifier => brigades[identifier])
                 .Select(brigade => brigade.Name)
@@ -141,7 +134,6 @@
 
     private record VotingCandidate(
         string CandidateName,
-        string VotingName,
         IReadOnlyCollection<string> Brigades,
         int VotesQuantity);
 

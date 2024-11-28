@@ -6,13 +6,6 @@ namespace AudienceVotingSystem.DataAccess.Configuration.Models;
 public sealed class Voting
 {
     /// <summary>
-    /// Идентификатор голосования.
-    /// </summary>
-    /// <remarks>Значение не должно быть пустым и его длина не должна превышать 50 символов. Значение
-    /// должно быть уникальным для всех сконфигурированных голосований.</remarks>
-    public string Identifier { get; set; } = string.Empty;
-
-    /// <summary>
     /// Человеко-читаемое название голосования.
     /// </summary>
     /// <remarks>Значение не должно быть пустым и его длина не должна превышать 100 символов.</remarks>
